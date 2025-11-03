@@ -16,8 +16,6 @@ town_color = 'lightcoral'
 road_color = 'lightgreen'
 path_color = 'red'
 
-q = Queue()
-
 class Town:
 
     def __init__(self, dept_id, name, latitude, longitude):
@@ -94,16 +92,20 @@ def get_road_to_parent(parent_town: Town, child_town: Town) -> Road:
 # Parcours en largeur
 def bfs(start_town: Town, end_town: Town):
     # À remplir !
-    node = Node(start_town, "explored", "", None, None, start_town.neighbours)
+    to_visit_queue = Queue()
     visited = set()
-    while True:
+    node = Node(start_town, "explored", "", None, None, start_town.neighbours)
+    to_visit_queue.put(node)
+    while not to_visit_queue.empty():
+        print("Visiting town ", node.town.dept_id)
         for neighbour_town in node.town.neighbours.keys():
+            if neighbour_town in visited:
+                continue
+            visited.add(neighbour_town)
+
             # distance = get_neighbour_distance(start_town.dept_id, neighbour_town.dept_id)
             distance = 0
 
-            visited.add(neighbour_town)
-            if neighbour_town not in visited:
-                continue
             parent = node
 
             road_to_parent = get_road_to_parent(parent.town, neighbour_town)
@@ -117,14 +119,13 @@ def bfs(start_town: Town, end_town: Town):
                 neighbour_town.neighbours
             )
 
-            q.put(neighbour_node)
+            to_visit_queue.put(neighbour_node)
 
             # print(distance, start_town.dept_id, neighbour_town.dept_id)
             if neighbour_town == end_town:
                 print("Found it!")
                 return neighbour_node
-        node = q.get()
-        print("New instance:", node.town.dept_id)
+        node = to_visit_queue.get()
     return None
 
 def display_path(path):
