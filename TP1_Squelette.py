@@ -78,6 +78,20 @@ def dfs(start_town, end_town):
     # À remplir !
     return None
 
+def get_neighbour_distance(town1_id, neighbour_town_id):
+    for road in roads:
+        if road.town1.dept_id == town1_id and road.town2.dept_id == neighbour_town_id:
+            return road.distance
+        elif road.town2.dept_id == town1_id and road.town1.dept_id == neighbour_town_id:
+            return road.distance
+    return None
+
+def get_road_to_parent(parent_town: Town, child_town: Town) -> Road:
+    for road in roads:
+        if (road.town1 == parent_town and road.town2 == child_town) or (road.town2 == parent_town and road.town1 == child_town):
+            return road
+    return None
+
 # Parcours en largeur
 def bfs(start_town, end_town):
     # À remplir !
