@@ -7,8 +7,9 @@ from queue import LifoQueue
 from queue import PriorityQueue
 import math
 import time
+import sys
 
-
+sys.setrecursionlimit(15000)
 search_algorithms = ('Parcours en largeur', 'Parcours en profondeur', 'Parcours en profondeur itératif', 'Recherche à coût Uniforme', 'Recherche gloutonne', 'A*')
 costs = ('distance', 'temps')
 
@@ -16,8 +17,7 @@ town_color = 'lightcoral'
 road_color = 'lightgreen'
 path_color = 'red'
 
-
-
+q = Queue()
 
 class Town:
 
@@ -49,7 +49,7 @@ class Node:
 
 # Distance vol d'oiseau
 def crowfliesdistance(town1, town2):
-    # À remplir !
+    
     return 0
 
 # A-Star
@@ -93,10 +93,40 @@ def get_road_to_parent(parent_town: Town, child_town: Town) -> Road:
     return None
 
 # Parcours en largeur
-def bfs(start_town, end_town):
+def bfs(start_town: Town, end_town: Town):
     # À remplir !
-    return None
+    path = {"cost": 170}
+    final_path = []
+    neighbours = []
 
+    node = Node(start_town, "explored", "", None, None, start_town.neighbours)
+    print(start_town.neighbours)
+
+    for neighbour_town in start_town.neighbours.keys():
+        distance = get_neighbour_distance(start_town.dept_id, neighbour_town.dept_id)
+        neighbours.append(neighbour_town)
+
+        parent = node
+
+        road_to_parent = get_road_to_parent(parent.town, neighbour_town)
+
+        neighbour_node = Node(
+            neighbour_town, 
+            "frontier",
+            distance,
+            parent,
+            road_to_parent,
+            neighbour_town.neighbours
+        )
+
+        q.put(neighbour_node)
+
+        # print(distance, start_town.dept_id, neighbour_town.dept_id)
+        if neighbour_town == end_town:
+            print("Found it!")
+            return neighbour_node
+    bfs(neighbours[0], end_town)
+    return None
 
 def display_path(path):
     current_node = path
@@ -151,12 +181,12 @@ towns = dict()
 roads = list()
 with open('data/towns.csv', newline='') as csvfile:
     reader = csv.DictReader(csvfile, delimiter=';')
-    for row in reader:
-        towns[int(row['dept_id'])] = Town(dept_id=int(row['dept_id']), name=row['name'], latitude=float(row['latitude']), longitude=float(row['longitude']))
+    for road in reader:
+        towns[int(road['dept_id'])] = Town(dept_id=int(road['dept_id']), name=road['name'], latitude=float(road['latitude']), longitude=float(road['longitude']))
 with open('data/roads.csv', newline='') as csvfile:
     reader = csv.DictReader(csvfile, delimiter=';')
-    for row in reader:
-        road = Road(town1=towns[int(row['town1'])], town2=towns[int(row['town2'])], distance=int(row['distance']), time=int(row['time']))
+    for road in reader:
+        road = Road(town1=towns[int(road['town1'])], town2=towns[int(road['town2'])], distance=int(road['distance']), time=int(road['time']))
         roads.append(road)
         road.town1.neighbours[road.town2] = road
         road.town2.neighbours[road.town1] = road
