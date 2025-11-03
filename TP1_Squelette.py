@@ -94,34 +94,37 @@ def get_road_to_parent(parent_town: Town, child_town: Town) -> Road:
 # Parcours en largeur
 def bfs(start_town: Town, end_town: Town):
     # À remplir !
-    neighbours = []
-
     node = Node(start_town, "explored", "", None, None, start_town.neighbours)
-    print(start_town.neighbours)
+    visited = set()
+    while True:
+        for neighbour_town in node.town.neighbours.keys():
+            # distance = get_neighbour_distance(start_town.dept_id, neighbour_town.dept_id)
+            distance = 0
 
-    for neighbour_town in start_town.neighbours.keys():
-        distance = get_neighbour_distance(start_town.dept_id, neighbour_town.dept_id)
-        neighbours.append(neighbour_town)
+            visited.add(neighbour_town)
+            if neighbour_town not in visited:
+                continue
+            parent = node
 
-        parent = node
+            road_to_parent = get_road_to_parent(parent.town, neighbour_town)
 
-        road_to_parent = get_road_to_parent(parent.town, neighbour_town)
+            neighbour_node = Node(
+                neighbour_town, 
+                "frontier",
+                distance,
+                parent,
+                road_to_parent,
+                neighbour_town.neighbours
+            )
 
-        neighbour_node = Node(
-            neighbour_town, 
-            "frontier",
-            distance,
-            parent,
-            road_to_parent,
-            neighbour_town.neighbours
-        )
+            q.put(neighbour_node)
 
-        q.put(neighbour_node)
-
-        # print(distance, start_town.dept_id, neighbour_town.dept_id)
-        if neighbour_town == end_town:
-            print("Found it!")
-            return neighbour_node
+            # print(distance, start_town.dept_id, neighbour_town.dept_id)
+            if neighbour_town == end_town:
+                print("Found it!")
+                return neighbour_node
+        node = q.get()
+        print("New instance:", node.town.dept_id)
     return None
 
 def display_path(path):
