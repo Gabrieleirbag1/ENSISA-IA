@@ -37,6 +37,16 @@ class Road:
         self.distance = distance
         self.time = time
 
+class Node:
+
+    def __init__(self, town: Town, state: str, cost: int, parent, road_to_parent: Road, neighbours: list[Town]):
+        self.town = town
+        self.state = state
+        self.cost = cost
+        self.parent = parent
+        self.road_to_parent = road_to_parent
+        self.neighbours = neighbours
+
 # Distance vol d'oiseau
 def crowfliesdistance(town1, town2):
     # À remplir !
