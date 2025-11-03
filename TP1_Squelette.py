@@ -9,7 +9,6 @@ import math
 import time
 import sys
 
-sys.setrecursionlimit(15000)
 search_algorithms = ('Parcours en largeur', 'Parcours en profondeur', 'Parcours en profondeur itératif', 'Recherche à coût Uniforme', 'Recherche gloutonne', 'A*')
 costs = ('distance', 'temps')
 
@@ -95,8 +94,6 @@ def get_road_to_parent(parent_town: Town, child_town: Town) -> Road:
 # Parcours en largeur
 def bfs(start_town: Town, end_town: Town):
     # À remplir !
-    path = {"cost": 170}
-    final_path = []
     neighbours = []
 
     node = Node(start_town, "explored", "", None, None, start_town.neighbours)
@@ -125,7 +122,6 @@ def bfs(start_town: Town, end_town: Town):
         if neighbour_town == end_town:
             print("Found it!")
             return neighbour_node
-    bfs(neighbours[0], end_town)
     return None
 
 def display_path(path):
