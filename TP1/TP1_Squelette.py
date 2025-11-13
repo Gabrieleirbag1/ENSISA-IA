@@ -80,48 +80,52 @@ def ucs(start_town, end_town):
     return None
 
 # Parcours en profondeur itératif
-def dfs_iter(start_town, end_town, max_depth=1):
-    # À remplir !
+def dfs_iter(start_town, end_town, max_depth=0):
+    # si max_depth est == 0 alors il n'y a pas de limite à la recherche
     depth = 0
-    to_visit_queue = LifoQueue()
-    visited = set()
-    node = Node(start_town, "explored", "", None, None, start_town.neighbours)
-    to_visit_queue.put(node)
-    while not to_visit_queue.empty() and depth <= max_depth:
-        node = to_visit_queue.get()
+    while depth <= max_depth or max_depth == 0:
+        to_visit_queue = LifoQueue()
+        visited = set()
+        node = Node(start_town, "explored", 0, None, None, start_town.neighbours)
+        to_visit_queue.put((node, 0))
         
-        if node.town in visited:
-            continue
-        visited.add(node.town)
-        
-        print("Visiting town ", node.town.dept_id)
-
-        if node.town == end_town:
-            print("Found it!")
-            return node
-        
-        for neighbour_town in node.town.neighbours.keys():
-            # print("Checking neighbour ", neighbour_town.dept_id)
-            if neighbour_town in visited:
+        while not to_visit_queue.empty():
+            node, current_depth = to_visit_queue.get()
+            
+            if node.town in visited:
                 continue
-            distance = 0
-            parent = node
-            road_to_parent = get_road_to_parent(parent.town, neighbour_town)
+            visited.add(node.town)
+            
+            print(f"Visiting town {node.town.dept_id} at depth {current_depth}")
 
-            neighbour_node = Node(
-                neighbour_town, 
-                "frontier",
-                distance,
-                parent,
-                road_to_parent,
-                neighbour_town.neighbours
-            )
+            if node.town == end_town:
+                print("Found it!")
+                return node
+            
+            if current_depth < depth:
+                for neighbour_town in node.town.neighbours.keys():
+                    if neighbour_town in visited:
+                        continue
+                    
+                    parent = node
+                    road_to_parent = get_road_to_parent(parent.town, neighbour_town)
 
-            to_visit_queue.put(neighbour_node)
+                    neighbour_node = Node(
+                        neighbour_town, 
+                        "frontier",
+                        0,
+                        parent,
+                        road_to_parent,
+                        neighbour_town.neighbours
+                    )
+
+                    to_visit_queue.put((neighbour_node, current_depth + 1))
+        
+        depth += 1
+        if max_depth > 0 and depth > max_depth: 
+            # arreter le code si on a mis une limite de recherche maximale
+            break
     
-    depth += 1
-
-    dfs_iter(start_town, end_town, max_depth+1)
     return None
 
 
