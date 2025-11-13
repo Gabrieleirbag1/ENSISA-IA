@@ -80,25 +80,26 @@ def ucs(start_town, end_town):
     return None
 
 # Parcours en profondeur itératif
-def dfs_iter(start_town, end_town):
+def dfs_iter(start_town, end_town, max_depth=1):
     # À remplir !
-    to_visit_queue = LifoQueue(maxsize=1)
+    depth = 0
+    to_visit_queue = LifoQueue()
     visited = set()
     node = Node(start_town, "explored", "", None, None, start_town.neighbours)
     to_visit_queue.put(node)
-    while not to_visit_queue.empty():
+    while not to_visit_queue.empty() and depth <= max_depth:
         node = to_visit_queue.get()
         
         if node.town in visited:
             continue
         visited.add(node.town)
         
-        # print("Visiting town ", node.town.dept_id)
+        print("Visiting town ", node.town.dept_id)
 
         if node.town == end_town:
             print("Found it!")
             return node
-        i = 0
+        
         for neighbour_town in node.town.neighbours.keys():
             # print("Checking neighbour ", neighbour_town.dept_id)
             if neighbour_town in visited:
@@ -116,11 +117,11 @@ def dfs_iter(start_town, end_town):
                 neighbour_town.neighbours
             )
 
-            if to_visit_queue.full():
-                to_visit_queue.maxsize += 1
-                print("Increasing stack size to ", to_visit_queue.maxsize)
             to_visit_queue.put(neighbour_node)
+    
+    depth += 1
 
+    dfs_iter(start_town, end_town, max_depth+1)
     return None
 
 
@@ -143,7 +144,6 @@ def dfs(start_town, end_town):
         if node.town == end_town:
             print("Found it!")
             return node
-        i = 0
         for neighbour_town in node.town.neighbours.keys():
 
             if neighbour_town in visited:
@@ -162,7 +162,6 @@ def dfs(start_town, end_town):
             )
 
             to_visit_queue.put(neighbour_node)
-            break
 
     return None
 
