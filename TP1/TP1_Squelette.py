@@ -37,13 +37,15 @@ class Road:
 
 class Node:
 
-    def __init__(self, town: Town, state: str, cost: int, parent, road_to_parent: Road, neighbours: list[Town]):
+    def __init__(self, town: Town, cost: int, parent, road_to_parent: Road, neighbours: list[Town]):
         self.town = town
-        self.state = state
         self.cost = cost
         self.parent = parent
         self.road_to_parent = road_to_parent
         self.neighbours = neighbours
+
+    def __lt__(self, other):
+        return self.cost < other.cost
 
 def get_neighbour_distance(town1_id, neighbour_town_id):
     for road in roads:
@@ -77,6 +79,37 @@ def greedy_search(start_town, end_town):
 # Parcours à coût uniforme
 def ucs(start_town, end_town):
     # À remplir !
+    to_visit_queue = PriorityQueue()
+    visited = set()
+    node = Node(start_town, 0, None, None, start_town.neighbours)
+    to_visit_queue.put((0, node))
+    while not to_visit_queue.empty():
+        print("Visiting town ", node.town.dept_id)
+        for neighbour_town in node.town.neighbours.keys():
+            if neighbour_town in visited:
+                continue
+            visited.add(neighbour_town)
+
+            parent = node
+
+            road_to_parent = get_road_to_parent(parent.town, neighbour_town)
+            distance = node.cost + road_to_parent.distance
+
+            neighbour_node = Node(
+                neighbour_town, 
+                distance,
+                parent,
+                road_to_parent,
+                neighbour_town.neighbours
+            )
+
+            to_visit_queue.put((neighbour_node.cost, neighbour_node))
+
+            # print(distance, start_town.dept_id, neighbour_town.dept_id)
+            if neighbour_town == end_town:
+                print("Found it!")
+                return neighbour_node
+        node = to_visit_queue.get()[1]
     return None
 
 # Parcours en profondeur itératif
@@ -86,7 +119,7 @@ def dfs_iter(start_town, end_town, max_depth=0):
     while depth <= max_depth or max_depth == 0:
         to_visit_queue = LifoQueue()
         visited = set()
-        node = Node(start_town, "explored", 0, None, None, start_town.neighbours)
+        node = Node(start_town, 0, None, None, start_town.neighbours)
         to_visit_queue.put((node, 0))
         
         while not to_visit_queue.empty():
@@ -112,7 +145,6 @@ def dfs_iter(start_town, end_town, max_depth=0):
 
                     neighbour_node = Node(
                         neighbour_town, 
-                        "frontier",
                         0,
                         parent,
                         road_to_parent,
@@ -134,7 +166,7 @@ def dfs(start_town, end_town):
     # À remplir !
     to_visit_queue = LifoQueue()
     visited = set()
-    node = Node(start_town, "explored", "", None, None, start_town.neighbours)
+    node = Node(start_town, 0, None, None, start_town.neighbours)
     to_visit_queue.put(node)
     while not to_visit_queue.empty():
         node = to_visit_queue.get()
@@ -158,7 +190,6 @@ def dfs(start_town, end_town):
 
             neighbour_node = Node(
                 neighbour_town, 
-                "frontier",
                 distance,
                 parent,
                 road_to_parent,
@@ -174,7 +205,7 @@ def bfs(start_town: Town, end_town: Town):
     # À remplir !
     to_visit_queue = Queue()
     visited = set()
-    node = Node(start_town, "explored", "", None, None, start_town.neighbours)
+    node = Node(start_town, 0, None, None, start_town.neighbours)
     to_visit_queue.put(node)
     while not to_visit_queue.empty():
         print("Visiting town ", node.town.dept_id)
@@ -192,7 +223,6 @@ def bfs(start_town: Town, end_town: Town):
 
             neighbour_node = Node(
                 neighbour_town, 
-                "frontier",
                 distance,
                 parent,
                 road_to_parent,
