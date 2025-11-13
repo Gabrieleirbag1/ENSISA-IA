@@ -77,6 +77,39 @@ def crowfliesdistance(town1, town2):
 # A-Star
 def a_star(start_town, end_town):
     # À remplir !
+    to_visit_queue = PriorityQueue()
+    visited = set()
+    node = Node(start_town, 0, None, None, start_town.neighbours)
+    to_visit_queue.put((0, node))
+    while not to_visit_queue.empty():
+        print("Visiting town ", node.town.dept_id)
+        for neighbour_town in node.town.neighbours.keys():
+            if neighbour_town in visited:
+                continue
+            visited.add(neighbour_town)
+
+            parent = node
+
+            road_to_parent = get_road_to_parent(parent.town, neighbour_town)
+            g_cost = node.cost + road_to_parent.distance
+            h_cost = crowfliesdistance(neighbour_town, end_town)
+            f_cost = g_cost + h_cost
+
+            neighbour_node = Node(
+                neighbour_town, 
+                g_cost,
+                parent,
+                road_to_parent,
+                neighbour_town.neighbours
+            )
+
+            to_visit_queue.put((f_cost, neighbour_node))
+
+            # print(distance, start_town.dept_id, neighbour_town.dept_id)
+            if neighbour_town == end_town:
+                print("Found it!")
+                return neighbour_node
+        node = to_visit_queue.get()[1]
     return None
 
 # Recherche gloutonne
