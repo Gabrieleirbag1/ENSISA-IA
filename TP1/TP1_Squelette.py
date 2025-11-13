@@ -63,8 +63,16 @@ def get_road_to_parent(parent_town: Town, child_town: Town) -> Road:
 
 # Distance vol d'oiseau
 def crowfliesdistance(town1, town2):
-    
-    return 0
+    R = 6371  # Rayon de la Terre en km
+    lat1 = math.radians(town1.latitude)
+    lat2 = math.radians(town2.latitude)
+    delta_lat = math.radians(town2.latitude - town1.latitude)
+    delta_lon = math.radians(town2.longitude - town1.longitude)
+
+    a = math.sin(delta_lat / 2) ** 2 + math.cos(lat1) * math.cos(lat2) * math.sin(delta_lon / 2) ** 2
+    c = 2 * math.atan2(math.sqrt(a), math.sqrt(1 - a))
+    distance = R * c
+    return distance
 
 # A-Star
 def a_star(start_town, end_town):
@@ -74,6 +82,37 @@ def a_star(start_town, end_town):
 # Recherche gloutonne
 def greedy_search(start_town, end_town):
     # À remplir !
+    to_visit_queue = PriorityQueue()
+    visited = set()
+    node = Node(start_town, 0, None, None, start_town.neighbours)
+    to_visit_queue.put((0, node))
+    while not to_visit_queue.empty():
+        print("Visiting town ", node.town.dept_id)
+        for neighbour_town in node.town.neighbours.keys():
+            if neighbour_town in visited:
+                continue
+            visited.add(neighbour_town)
+
+            parent = node
+
+            road_to_parent = get_road_to_parent(parent.town, neighbour_town)
+            distance = crowfliesdistance(neighbour_town, end_town)
+
+            neighbour_node = Node(
+                neighbour_town, 
+                distance,
+                parent,
+                road_to_parent,
+                neighbour_town.neighbours
+            )
+
+            to_visit_queue.put((neighbour_node.cost, neighbour_node))
+
+            # print(distance, start_town.dept_id, neighbour_town.dept_id)
+            if neighbour_town == end_town:
+                print("Found it!")
+                return neighbour_node
+        node = to_visit_queue.get()[1]
     return None
 
 # Parcours à coût uniforme
