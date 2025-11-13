@@ -129,11 +129,11 @@ def greedy_search(start_town, end_town):
             parent = node
 
             road_to_parent = get_road_to_parent(parent.town, neighbour_town)
-            distance = crowfliesdistance(neighbour_town, end_town)
+            cost = crowfliesdistance(neighbour_town, end_town)
 
             neighbour_node = Node(
                 neighbour_town, 
-                distance,
+                cost,
                 parent,
                 road_to_parent,
                 neighbour_town.neighbours
@@ -165,11 +165,11 @@ def ucs(start_town, end_town):
             parent = node
 
             road_to_parent = get_road_to_parent(parent.town, neighbour_town)
-            distance = node.cost + road_to_parent.distance
+            cost = node.cost + road_to_parent.distance
 
             neighbour_node = Node(
                 neighbour_town, 
-                distance,
+                cost,
                 parent,
                 road_to_parent,
                 neighbour_town.neighbours
@@ -256,13 +256,13 @@ def dfs(start_town, end_town):
 
             if neighbour_town in visited:
                 continue
-            distance = 0
+            cost = 0
             parent = node
             road_to_parent = get_road_to_parent(parent.town, neighbour_town)
 
             neighbour_node = Node(
                 neighbour_town, 
-                distance,
+                cost,
                 parent,
                 road_to_parent,
                 neighbour_town.neighbours
@@ -286,8 +286,8 @@ def bfs(start_town: Town, end_town: Town):
                 continue
             visited.add(neighbour_town)
 
-            # distance = get_neighbour_distance(start_town.dept_id, neighbour_town.dept_id)
-            distance = 0
+            # cost = get_neighbour_distance(start_town.dept_id, neighbour_town.dept_id)
+            cost = 0
 
             parent = node
 
@@ -295,7 +295,7 @@ def bfs(start_town: Town, end_town: Town):
 
             neighbour_node = Node(
                 neighbour_town, 
-                distance,
+                cost,
                 parent,
                 road_to_parent,
                 neighbour_town.neighbours
