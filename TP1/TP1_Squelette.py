@@ -7,6 +7,7 @@ from queue import LifoQueue
 from queue import PriorityQueue
 import math
 import time
+import os
 import sys
 
 search_algorithms = ('Parcours en largeur', 'Parcours en profondeur', 'Parcours en profondeur itératif', 'Recherche à coût Uniforme', 'Recherche gloutonne', 'A*')
@@ -81,6 +82,45 @@ def ucs(start_town, end_town):
 # Parcours en profondeur itératif
 def dfs_iter(start_town, end_town):
     # À remplir !
+    to_visit_queue = LifoQueue(maxsize=1)
+    visited = set()
+    node = Node(start_town, "explored", "", None, None, start_town.neighbours)
+    to_visit_queue.put(node)
+    while not to_visit_queue.empty():
+        node = to_visit_queue.get()
+        
+        if node.town in visited:
+            continue
+        visited.add(node.town)
+        
+        # print("Visiting town ", node.town.dept_id)
+
+        if node.town == end_town:
+            print("Found it!")
+            return node
+        i = 0
+        for neighbour_town in node.town.neighbours.keys():
+            # print("Checking neighbour ", neighbour_town.dept_id)
+            if neighbour_town in visited:
+                continue
+            distance = 0
+            parent = node
+            road_to_parent = get_road_to_parent(parent.town, neighbour_town)
+
+            neighbour_node = Node(
+                neighbour_town, 
+                "frontier",
+                distance,
+                parent,
+                road_to_parent,
+                neighbour_town.neighbours
+            )
+
+            if to_visit_queue.full():
+                to_visit_queue.maxsize += 1
+                print("Increasing stack size to ", to_visit_queue.maxsize)
+            to_visit_queue.put(neighbour_node)
+
     return None
 
 
@@ -122,7 +162,7 @@ def dfs(start_town, end_town):
             )
 
             to_visit_queue.put(neighbour_node)
-            continue
+            break
 
     return None
 
@@ -216,7 +256,6 @@ def latitude_to_pixel(latitude):
 # Read towns and roads csv and create relative objects
 towns = dict()
 roads = list()
-import os
 with open(os.path.join(os.path.dirname(__file__), 'data', 'towns.csv'), newline='') as csvfile:
     reader = csv.DictReader(csvfile, delimiter=';')
     for road in reader:
@@ -235,7 +274,7 @@ window.title("Itineria")
 
 # Décommenter la carte pour choisir la bonne taille pour votre machine
 # map_image = tk.PhotoImage(file="img/France_map_admin_1066_1024.png")
-map_image = tk.PhotoImage(file="img/France_map_admin_799_768.png")
+map_image = tk.PhotoImage(file=os.path.join(os.path.dirname(__file__), "img/France_map_admin_799_768.png"))
 # map_image = tk.PhotoImage(file="img/France_map_admin_499_480.png")
 
 
