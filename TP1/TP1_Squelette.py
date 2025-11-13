@@ -44,6 +44,20 @@ class Node:
         self.road_to_parent = road_to_parent
         self.neighbours = neighbours
 
+def get_neighbour_distance(town1_id, neighbour_town_id):
+    for road in roads:
+        if road.town1.dept_id == town1_id and road.town2.dept_id == neighbour_town_id:
+            return road.distance
+        elif road.town2.dept_id == town1_id and road.town1.dept_id == neighbour_town_id:
+            return road.distance
+    return None
+
+def get_road_to_parent(parent_town: Town, child_town: Town) -> Road:
+    for road in roads:
+        if (road.town1 == parent_town and road.town2 == child_town) or (road.town2 == parent_town and road.town1 == child_town):
+            return road
+    return None
+
 # Distance vol d'oiseau
 def crowfliesdistance(town1, town2):
     
@@ -73,20 +87,43 @@ def dfs_iter(start_town, end_town):
 # Parcours en profondeur
 def dfs(start_town, end_town):
     # À remplir !
-    return None
+    to_visit_queue = LifoQueue()
+    visited = set()
+    node = Node(start_town, "explored", "", None, None, start_town.neighbours)
+    to_visit_queue.put(node)
+    while not to_visit_queue.empty():
+        node = to_visit_queue.get()
+        
+        if node.town in visited:
+            continue
+        visited.add(node.town)
+        
+        # print("Visiting town ", node.town.dept_id)
 
-def get_neighbour_distance(town1_id, neighbour_town_id):
-    for road in roads:
-        if road.town1.dept_id == town1_id and road.town2.dept_id == neighbour_town_id:
-            return road.distance
-        elif road.town2.dept_id == town1_id and road.town1.dept_id == neighbour_town_id:
-            return road.distance
-    return None
+        if node.town == end_town:
+            print("Found it!")
+            return node
+        i = 0
+        for neighbour_town in node.town.neighbours.keys():
 
-def get_road_to_parent(parent_town: Town, child_town: Town) -> Road:
-    for road in roads:
-        if (road.town1 == parent_town and road.town2 == child_town) or (road.town2 == parent_town and road.town1 == child_town):
-            return road
+            if neighbour_town in visited:
+                continue
+            distance = 0
+            parent = node
+            road_to_parent = get_road_to_parent(parent.town, neighbour_town)
+
+            neighbour_node = Node(
+                neighbour_town, 
+                "frontier",
+                distance,
+                parent,
+                road_to_parent,
+                neighbour_town.neighbours
+            )
+
+            to_visit_queue.put(neighbour_node)
+            continue
+
     return None
 
 # Parcours en largeur
@@ -132,7 +169,7 @@ def display_path(path):
     current_node = path
     while current_node.parent is not None:
         canvas1.itemconfig(road_lines[current_node.road_to_parent], fill=path_color)
-        print(current_node.road_to_parent.town1.name, current_node.road_to_parent.town2.name)
+        # print(current_node.road_to_parent.town1.name, current_node.road_to_parent.town2.name)
         current_node = current_node.parent
 
 
@@ -179,11 +216,12 @@ def latitude_to_pixel(latitude):
 # Read towns and roads csv and create relative objects
 towns = dict()
 roads = list()
-with open('data/towns.csv', newline='') as csvfile:
+import os
+with open(os.path.join(os.path.dirname(__file__), 'data', 'towns.csv'), newline='') as csvfile:
     reader = csv.DictReader(csvfile, delimiter=';')
     for road in reader:
         towns[int(road['dept_id'])] = Town(dept_id=int(road['dept_id']), name=road['name'], latitude=float(road['latitude']), longitude=float(road['longitude']))
-with open('data/roads.csv', newline='') as csvfile:
+with open(os.path.join(os.path.dirname(__file__), 'data', 'roads.csv'), newline='') as csvfile:
     reader = csv.DictReader(csvfile, delimiter=';')
     for road in reader:
         road = Road(town1=towns[int(road['town1'])], town2=towns[int(road['town2'])], distance=int(road['distance']), time=int(road['time']))
